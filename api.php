@@ -1,9 +1,9 @@
 <?php
 // Database configuration for InfinityFree MySQL
-$db_host = 'sql312.infinityfree.com'; // Replace with your actual InfinityFree MySQL host
-$db_name = 'if0_35473255_study_website'; // Replace with your actual database name
-$db_user = 'if0_35473255'; // Replace with your actual username
-$db_pass = 'pravat'; // Replace with your actual password
+$db_host = 'sql305.infinityfree.com'; // Replace with your actual InfinityFree MySQL host
+$db_name = 'if0_38739024_db_main'; // Replace with your actual database name
+$db_user = 'if0_38739024'; // Replace with your actual username
+$db_pass = '7CiuYSLurrAX'; // Replace with your actual password
 
 // Set headers for cross-origin requests
 header('Access-Control-Allow-Origin: *');
