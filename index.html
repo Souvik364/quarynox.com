@@ -1,0 +1,2400 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="description" content="Search and download past exam papers from various colleges and courses. Find study materials for your exams.">
+    <meta name="keywords" content="exam papers, college exams, study materials, past papers, academic resources">
+    <meta name="author" content="Exam Paper Repository">
+    <meta name="robots" content="index, follow">
+    <meta property="og:title" content="Exam Paper Repository">
+    <meta property="og:description" content="Find and download past exam papers from various colleges and courses.">
+    <meta property="og:type" content="website">
+    <meta name="theme-color" content="#4f46e5">
+    <title>Exam Paper Repository | Find Past Exam Papers</title>
+    <link rel="icon" href="https://cdn.jsdelivr.net/npm/@fortawesome/fontawesome-free@6.4.0/svgs/solid/file-alt.svg" type="image/svg+xml">
+    <link href="https://cdn.jsdelivr.net/npm/tailwindcss@2.2.19/dist/tailwind.min.css" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+    <style>
+        :root {
+            --primary: #4f46e5;
+            --primary-dark: #4338ca;
+            --secondary: #14d192;
+            --dark: #1e293b;
+            --light: #f8fafc;
+            --transition-speed: 0.3s;
+            --transition-speed-fast: 0.2s;
+            --transition-speed-slow: 0.5s;
+            --bezier-bounce: cubic-bezier(0.68, -0.55, 0.27, 1.55);
+            --bezier-smooth: cubic-bezier(0.45, 0, 0.55, 1);
+        }
+        
+        /* Global Styles */
+        body {
+            font-family: 'Inter', sans-serif;
+            scroll-behavior: smooth;
+            overflow-x: hidden;
+            opacity: 0;
+            animation: pageLoad 0.6s var(--bezier-smooth) forwards;
+        }
+        
+        /* Animations */
+        @keyframes pageLoad {
+            from { opacity: 0; }
+            to { opacity: 1; }
+        }
+        
+        @keyframes fadeIn {
+            from { opacity: 0; transform: translateY(10px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+        
+        @keyframes fadeInScale {
+            from { opacity: 0; transform: scale(0.95); }
+            to { opacity: 1; transform: scale(1); }
+        }
+        
+        @keyframes slideInRight {
+            from { opacity: 0; transform: translateX(20px); }
+            to { opacity: 1; transform: translateX(0); }
+        }
+        
+        @keyframes slideInLeft {
+            from { opacity: 0; transform: translateX(-20px); }
+            to { opacity: 1; transform: translateX(0); }
+        }
+        
+        @keyframes slideInUp {
+            from { opacity: 0; transform: translateY(20px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+        
+        @keyframes pulse {
+            0% { transform: scale(1); }
+            50% { transform: scale(1.05); }
+            100% { transform: scale(1); }
+        }
+        
+        @keyframes spin {
+            from { transform: rotate(0deg); }
+            to { transform: rotate(360deg); }
+        }
+        
+        @keyframes shimmer {
+            0% { background-position: -200% 0; }
+            100% { background-position: 200% 0; }
+        }
+        
+        /* Loading Animation */
+        .loading-spinner {
+            display: inline-block;
+            width: 1.5rem;
+            height: 1.5rem;
+            border: 3px solid rgba(255, 255, 255, 0.3);
+            border-radius: 50%;
+            border-top-color: white;
+            animation: spin 0.8s ease-in-out infinite;
+        }
+        
+        /* Skeleton Loading */
+        .skeleton {
+            background: linear-gradient(90deg, #f0f0f0 25%, #e0e0e0 50%, #f0f0f0 75%);
+            background-size: 200% 100%;
+            animation: shimmer 1.5s infinite;
+            border-radius: 4px;
+        }
+        
+        /* Card Animations */
+        .card-hover {
+            transition: transform var(--transition-speed) var(--bezier-smooth), 
+                        box-shadow var(--transition-speed) var(--bezier-smooth), 
+                        border-color var(--transition-speed) var(--bezier-smooth);
+            will-change: transform;
+            backface-visibility: hidden;
+            transform: translateZ(0);
+        }
+        
+        .card-hover:hover {
+            transform: translateY(-5px);
+            box-shadow: 0 10px 25px -5px rgba(0, 0, 0, 0.1);
+            border-color: var(--primary);
+        }
+        
+        /* Tab Content Animation */
+        .tab-content {
+            display: none;
+            opacity: 0;
+            transform: translateY(10px);
+            transition: opacity var(--transition-speed) var(--bezier-smooth),
+                        transform var(--transition-speed) var(--bezier-smooth);
+        }
+        
+        .tab-content.active {
+            display: block;
+            opacity: 1;
+            transform: translateY(0);
+        }
+        
+        /* Admin Tab Animation */
+        .admin-tab {
+            position: relative;
+            transition: all var(--transition-speed-fast) var(--bezier-smooth);
+        }
+        
+        .admin-tab::after {
+            content: '';
+            position: absolute;
+            bottom: -2px;
+            left: 50%;
+            width: 0;
+            height: 2px;
+            background-color: var(--primary);
+            transition: all var(--transition-speed-fast) var(--bezier-smooth);
+            transform: translateX(-50%);
+        }
+        
+        .admin-tab:hover::after {
+            width: 80%;
+        }
+        
+        .admin-tab.active::after {
+            width: 100%;
+        }
+        
+        /* File Upload Styling */
+        .file-upload {
+            border: 2px dashed #cbd5e1;
+            border-radius: 0.5rem;
+            transition: all var(--transition-speed) var(--bezier-smooth);
+        }
+        
+        .file-upload:hover {
+            border-color: var(--primary);
+            background-color: rgba(79, 70, 229, 0.05);
+            transform: translateY(-2px);
+        }
+        
+        /* Button Animations */
+        button {
+            transition: all var(--transition-speed-fast) var(--bezier-smooth);
+            position: relative;
+            overflow: hidden;
+        }
+        
+        button:active {
+            transform: scale(0.97);
+        }
+        
+        button::after {
+            content: '';
+            position: absolute;
+            top: 50%;
+            left: 50%;
+            width: 5px;
+            height: 5px;
+            background: rgba(255, 255, 255, 0.5);
+            opacity: 0;
+            border-radius: 100%;
+            transform: scale(1, 1) translate(-50%, -50%);
+            transform-origin: 50% 50%;
+        }
+        
+        button:focus:not(:active)::after {
+            animation: ripple 0.6s ease-out;
+        }
+        
+        @keyframes ripple {
+            0% {
+                transform: scale(0, 0);
+                opacity: 0.5;
+            }
+            100% {
+                transform: scale(20, 20);
+                opacity: 0;
+            }
+        }
+        
+        /* Form Controls Animation */
+        input, select {
+            transition: border-color var(--transition-speed-fast) var(--bezier-smooth), 
+                       box-shadow var(--transition-speed-fast) var(--bezier-smooth),
+                       background-color var(--transition-speed-fast) var(--bezier-smooth);
+        }
+        
+        input:focus, select:focus {
+            border-color: var(--primary);
+            box-shadow: 0 0 0 3px rgba(79, 70, 229, 0.2);
+            background-color: #fafafa;
+        }
+        
+        /* Admin Indicator */
+        .admin-indicator {
+            position: fixed;
+            top: 1rem;
+            right: 1rem;
+            z-index: 50;
+            animation: slideInRight 0.5s var(--bezier-bounce);
+        }
+        
+        /* Paper Card Styling */
+        .paper-card {
+            min-height: 220px;
+            border: 1px solid transparent;
+            transition: all var(--transition-speed) var(--bezier-smooth);
+            transform: translateZ(0);
+        }
+        
+        /* List Item Styling */
+        .paper-list-item {
+            transition: all var(--transition-speed) var(--bezier-smooth);
+            transform: translateZ(0);
+        }
+        
+        .paper-list-item:hover {
+            background-color: #f9fafb;
+            transform: translateX(5px);
+        }
+        
+        /* File Upload Highlight */
+        .file-upload-highlight {
+            border-color: var(--primary);
+            background-color: rgba(79, 70, 229, 0.05);
+            animation: pulse 1.5s ease infinite;
+        }
+        
+        /* Toast Notifications */
+        .toast {
+            position: fixed;
+            bottom: 20px;
+            right: 20px;
+            padding: 15px 25px;
+            border-radius: 8px;
+            color: white;
+            font-weight: 500;
+            box-shadow: 0 8px 16px rgba(0,0,0,0.2);
+            z-index: 1000;
+            transform: translateY(100px);
+            opacity: 0;
+            transition: all 0.4s var(--bezier-bounce);
+            max-width: 90%;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+        
+        .toast.show {
+            transform: translateY(0);
+            opacity: 1;
+        }
+        
+        .toast.success {
+            background-color: #10b981;
+            border-left: 5px solid #059669;
+        }
+        
+        .toast.error {
+            background-color: #ef4444;
+            border-left: 5px solid #dc2626;
+        }
+        
+        .toast.info {
+            background-color: #3b82f6;
+            border-left: 5px solid #2563eb;
+        }
+        
+        /* Toast Icon Animation */
+        .toast i {
+            animation: fadeInScale 0.5s var(--bezier-bounce);
+        }
+        
+        /* Responsive Design Improvements */
+        @media (max-width: 1024px) {
+            .container {
+                max-width: 100%;
+                padding-left: 1rem;
+                padding-right: 1rem;
+            }
+            
+            header h1 {
+                font-size: 2rem;
+            }
+        }
+        
+        @media (max-width: 768px) {
+            .admin-indicator {
+                top: 0.5rem;
+                right: 0.5rem;
+            }
+            
+            .toast {
+                left: 20px;
+                right: 20px;
+                max-width: calc(100% - 40px);
+                text-align: center;
+                justify-content: center;
+            }
+            
+            .paper-card {
+                min-height: 180px;
+            }
+            
+            header h1 {
+                font-size: 1.75rem;
+            }
+            
+            header p {
+                font-size: 0.9rem;
+            }
+            
+            .admin-tab {
+                font-size: 0.9rem;
+                padding: 0.5rem 0.75rem;
+            }
+        }
+        
+        @media (max-width: 640px) {
+            header h1 {
+                font-size: 1.5rem;
+            }
+            
+            .admin-tab {
+                font-size: 0.8rem;
+                padding: 0.5rem;
+            }
+            
+            .paper-card {
+                min-height: 160px;
+            }
+        }
+        
+        /* Accessibility Improvements */
+        :focus-visible {
+            outline: 2px solid var(--primary);
+            outline-offset: 2px;
+        }
+        
+        /* Smooth Scrolling */
+        html {
+            scroll-behavior: smooth;
+        }
+        
+        /* SEO Optimizations */
+        h1, h2, h3 {
+            transition: color var(--transition-speed-fast) var(--bezier-smooth);
+        }
+        
+        /* Performance Optimizations */
+        img, svg {
+            transform: translateZ(0); /* Hardware acceleration */
+        }
+    </style>
+</head>
+<body class="bg-gray-50 min-h-screen">
+    <!-- Toast Notification -->
+    <div id="toast" class="toast"></div>
+    
+    <!-- Admin Indicator -->
+    <div class="admin-indicator">
+        <button id="adminToggleBtn" class="bg-indigo-600 hover:bg-indigo-700 text-white px-4 py-2 rounded-lg shadow flex items-center">
+            <i class="fas fa-lock mr-2"></i> Admin Login
+        </button>
+    </div>
+
+    <!-- Admin Login Modal -->
+    <div id="adminLoginModal" class="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50 hidden">
+        <div class="bg-white rounded-xl p-8 max-w-md w-full mx-4">
+            <h2 class="text-2xl font-bold text-gray-800 mb-6">Admin Login</h2>
+            <div class="mb-4">
+                <label class="block text-gray-700 mb-2">Password</label>
+                <input type="password" id="adminPassword" class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-indigo-500" placeholder="Enter password">
+                <p id="passwordError" class="text-red-500 text-sm mt-1 hidden">Incorrect password. Try again later</p>
+            </div>
+            <div class="flex justify-end">
+                <button id="cancelLoginBtn" class="px-4 py-2 text-gray-600 hover:text-gray-800 mr-2">Cancel</button>
+                <button id="loginBtn" class="px-6 py-2 bg-indigo-600 text-white rounded-lg hover:bg-indigo-700 transition">Login</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- Main Content -->
+    <div class="container mx-auto px-4 py-8">
+        <!-- Header -->
+        <header class="text-center mb-12">
+            <h1 class="text-4xl font-bold text-gray-800 mb-3">Exam Paper Repository</h1>
+            <p class="text-gray-600 max-w-2xl mx-auto">Search and download past exam papers from various colleges and courses. Administrators can manage content after login.</p>
+        </header>
+
+        <!-- Search Section -->
+        <section class="bg-white rounded-xl shadow-lg p-6 mb-8">
+            <div class="grid grid-cols-1 md:grid-cols-5 gap-4 mb-6">
+                <div>
+                    <label class="block text-gray-700 mb-2">College</label>
+                    <select id="collegeFilter" class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-indigo-500">
+                        <option value="">Select college</option>
+                    </select>
+                </div>
+                <div>
+                    <label class="block text-gray-700 mb-2">Course</label>
+                    <select id="courseFilter" class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-indigo-500" disabled>
+                        <option value="">Select course</option>
+                    </select>
+                </div>
+                <div>
+                    <label class="block text-gray-700 mb-2">Year</label>
+                    <select id="yearFilter" class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-indigo-500">
+                        <option value="">Select year</option>
+                    </select>
+                </div>
+                <div>
+                    <label class="block text-gray-700 mb-2">Semester</label>
+                    <select id="semesterFilter" class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-indigo-500">
+                        <option value="">Select semester</option>
+                        <option value="1">Semester 1</option>
+                        <option value="2">Semester 2</option>
+                        <option value="3">Semester 3</option>
+                        <option value="4">Semester 4</option>
+                    </select>
+                </div>
+                <div>
+                    <label class="block text-gray-700 mb-2">Subject</label>
+                    <select id="subjectFilter" class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-indigo-500" disabled>
+                        <option value="">Select subject</option>
+                    </select>
+                </div>
+            </div>
+            
+            <div class="flex justify-between">
+                <button id="resetFiltersBtn" class="px-4 py-2 bg-gray-200 text-gray-700 rounded-lg hover:bg-gray-300 flex items-center">
+                    <i class="fas fa-redo mr-2"></i> Reset Filters
+                </button>
+                <div class="flex space-x-2">
+                    <button id="searchBtn" class="px-4 py-2 bg-indigo-600 text-white rounded-lg flex items-center">
+                        <i class="fas fa-search mr-2"></i> Search
+                    </button>
+                </div>
+            </div>
+        </section>
+
+        <!-- View Toggle -->
+        <div class="flex justify-end mb-4">
+            <div class="inline-flex rounded-md shadow-sm" role="group">
+                <button id="gridViewBtn" type="button" class="px-4 py-2 text-sm font-medium text-white bg-indigo-600 rounded-l-lg hover:bg-indigo-700 focus:z-10 focus:ring-2 focus:ring-indigo-500">
+                    <i class="fas fa-th-large mr-2"></i> Grid View
+                </button>
+                <button id="listViewBtn" type="button" class="px-4 py-2 text-sm font-medium text-gray-900 bg-white border-t border-b border-gray-200 hover:bg-gray-100 hover:text-indigo-700 focus:z-10 focus:ring-2 focus:ring-indigo-500">
+                    <i class="fas fa-list mr-2"></i> List View
+                </button>
+            </div>
+        </div>
+
+        <!-- Results Section -->
+        <section id="resultsSection" class="mb-12">
+            <h2 class="text-2xl font-bold text-gray-800 mb-6">Available Exam Papers</h2>
+            
+            <!-- Grid View -->
+            <div id="gridView" class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+                <!-- Papers will be dynamically added here -->
+            </div>
+            
+            <!-- List View -->
+            <div id="listView" class="hidden bg-white rounded-xl shadow-md overflow-hidden">
+                <table class="min-w-full divide-y divide-gray-200">
+                    <thead class="bg-gray-50">
+                        <tr>
+                            <th scope="col" class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Paper Title</th>
+                            <th scope="col" class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">College</th>
+                            <th scope="col" class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Course</th>
+                            <th scope="col" class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Year</th>
+                            <th scope="col" class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Actions</th>
+                        </tr>
+                    </thead>
+                    <tbody id="listViewContent" class="bg-white divide-y divide-gray-200">
+                        <!-- Papers will be dynamically added here -->
+                    </tbody>
+                </table>
+            </div>
+            
+            <!-- No Results -->
+            <div id="noResults" class="hidden">
+                <div class="bg-white rounded-xl shadow-md p-12 text-center">
+                    <div class="mx-auto max-w-md space-y-4">
+                        <div class="bg-gray-200 border-2 border-dashed rounded-xl w-32 h-32 mx-auto"></div>
+                        <h3 class="text-xl font-semibold">No papers found</h3>
+                        <p class="text-gray-500">
+                            Try adjusting your filters or search query
+                        </p>
+                        <button id="resetNoResultsBtn" class="px-4 py-2 bg-indigo-600 text-white rounded-lg hover:bg-indigo-700">
+                            Reset Filters
+                        </button>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <!-- Admin Panel Section (Initially Hidden) -->
+        <section id="adminPanel" class="hidden">
+            <div class="flex justify-between items-center mb-6">
+                <h2 class="text-2xl font-bold text-gray-800">Admin Panel</h2>
+                <button id="logoutBtn" class="px-4 py-2 bg-red-600 text-white rounded-lg hover:bg-red-700 flex items-center">
+                    <i class="fas fa-sign-out-alt mr-2"></i> Logout
+                </button>
+            </div>
+            
+            <!-- Admin Tabs -->
+            <div class="border-b border-gray-200 mb-6">
+                <div class="flex space-x-4">
+                    <button class="admin-tab active px-4 py-2 text-indigo-600 border-b-2 border-indigo-600 font-medium" data-tab="dashboard">Dashboard</button>
+                    <button class="admin-tab px-4 py-2 text-gray-600 hover:text-gray-800" data-tab="colleges">Colleges</button>
+                    <button class="admin-tab px-4 py-2 text-gray-600 hover:text-gray-800" data-tab="courses">Courses</button>
+                    <button class="admin-tab px-4 py-2 text-gray-600 hover:text-gray-800" data-tab="subjects">Subjects</button>
+                    <button class="admin-tab px-4 py-2 text-gray-600 hover:text-gray-800" data-tab="upload">Upload Papers</button>
+                </div>
+            </div>
+            
+            <!-- Tab Contents -->
+            <div>
+                <!-- Dashboard Tab -->
+                <div id="dashboardTab" class="tab-content active">
+                    <div class="grid grid-cols-1 md:grid-cols-3 gap-6 mb-8">
+                        <div class="bg-white rounded-xl shadow-md p-6">
+                            <div class="flex justify-between items-center">
+                                <div>
+                                    <h3 class="text-lg font-medium text-gray-700">Total Papers</h3>
+                                    <p id="totalPapers" class="text-3xl font-bold text-gray-900 mt-2">0</p>
+                                </div>
+                                <div class="bg-indigo-100 p-3 rounded-full">
+                                    <i class="fas fa-file-alt text-indigo-600 text-2xl"></i>
+                                </div>
+                            </div>
+                        </div>
+                        
+                        <div class="bg-white rounded-xl shadow-md p-6">
+                            <div class="flex justify-between items-center">
+                                <div>
+                                    <h3 class="text-lg font-medium text-gray-700">Colleges</h3>
+                                    <p id="totalColleges" class="text-3xl font-bold text-gray-900 mt-2">0</p>
+                                </div>
+                                <div class="bg-green-100 p-3 rounded-full">
+                                    <i class="fas fa-university text-green-600 text-2xl"></i>
+                                </div>
+                            </div>
+                        </div>
+                        
+                        <div class="bg-white rounded-xl shadow-md p-6">
+                            <div class="flex justify-between items-center">
+                                <div>
+                                    <h3 class="text-lg font-medium text-gray-700">Active Users</h3>
+                                    <p class="text-3xl font-bold text-gray-900 mt-2">342</p>
+                                </div>
+                                <div class="bg-yellow-100 p-3 rounded-full">
+                                    <i class="fas fa-users text-yellow-600 text-2xl"></i>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <div class="bg-white rounded-xl shadow-md p-6 mb-8">
+                        <h3 class="text-lg font-medium text-gray-700 mb-4">Recent Uploads</h3>
+                        <div class="overflow-x-auto">
+                            <table class="min-w-full divide-y divide-gray-200">
+                                <thead class="bg-gray-50">
+                                    <tr>
+                                        <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Paper Title</th>
+                                        <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">College</th>
+                                        <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Course</th>
+                                        <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Date</th>
+                                    </tr>
+                                </thead>
+                                <tbody id="recentUploads" class="bg-white divide-y divide-gray-200">
+                                    <!-- Recent uploads will be added here -->
+                                </tbody>
+                            </table>
+                        </div>
+                    </div>
+                </div>
+                
+                <!-- Colleges Tab -->
+                <div id="collegesTab" class="tab-content">
+                    <div class="bg-white rounded-xl shadow-md p-6 mb-8">
+                        <h3 class="text-lg font-medium text-gray-700 mb-4">Manage Colleges</h3>
+                        
+                        <div class="mb-6">
+                            <h4 class="text-md font-medium text-gray-700 mb-3">Add New College</h4>
+                            <div class="flex space-x-2">
+                                <input type="text" id="newCollegeName" placeholder="College Name" class="flex-1 px-4 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-indigo-500">
+                                <button id="addCollegeBtn" class="px-4 py-2 bg-indigo-600 text-white rounded-lg hover:bg-indigo-700">Add College</button>
+                            </div>
+                        </div>
+                        
+                        <div class="overflow-x-auto">
+                            <table class="min-w-full divide-y divide-gray-200">
+                                <thead class="bg-gray-50">
+                                    <tr>
+                                        <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">College Name</th>
+                                        <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Courses</th>
+                                        <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Actions</th>
+                                    </tr>
+                                </thead>
+                                <tbody id="collegesTable" class="bg-white divide-y divide-gray-200">
+                                    <!-- Colleges will be added here -->
+                                </tbody>
+                            </table>
+                        </div>
+                    </div>
+                </div>
+                
+                <!-- Courses Tab -->
+                <div id="coursesTab" class="tab-content">
+                    <div class="bg-white rounded-xl shadow-md p-6 mb-8">
+                        <h3 class="text-lg font-medium text-gray-700 mb-4">Manage Courses</h3>
+                        
+                        <div class="mb-6">
+                            <h4 class="text-md font-medium text-gray-700 mb-3">Add New Course</h4>
+                            <div class="grid grid-cols-1 md:grid-cols-3 gap-4 mb-4">
+                                <div>
+                                    <label class="block text-gray-700 mb-2">College</label>
+                                    <select id="collegeForCourse" class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-indigo-500">
+                                        <option value="">Select college</option>
+                                    </select>
+                                </div>
+                                <div class="col-span-2">
+                                    <label class="block text-gray-700 mb-2">Course Name</label>
+                                    <input type="text" id="newCourseName" placeholder="Course Name" class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-indigo-500">
+                                </div>
+                            </div>
+                            <button id="addCourseBtn" class="px-4 py-2 bg-indigo-600 text-white rounded-lg hover:bg-indigo-700">Add Course</button>
+                        </div>
+                        
+                        <div class="overflow-x-auto">
+                            <table class="min-w-full divide-y divide-gray-200">
+                                <thead class="bg-gray-50">
+                                    <tr>
+                                        <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Course Name</th>
+                                        <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">College</th>
+                                        <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Subjects</th>
+                                        <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Actions</th>
+                                    </tr>
+                                </thead>
+                                <tbody id="coursesTable" class="bg-white divide-y divide-gray-200">
+                                    <!-- Courses will be added here -->
+                                </tbody>
+                            </table>
+                        </div>
+                    </div>
+                </div>
+                
+                <!-- Subjects Tab -->
+                <div id="subjectsTab" class="tab-content">
+                    <div class="bg-white rounded-xl shadow-md p-6 mb-8">
+                        <h3 class="text-lg font-medium text-gray-700 mb-4">Manage Subjects</h3>
+                        
+                        <div class="mb-6">
+                            <h4 class="text-md font-medium text-gray-700 mb-3">Add New Subject</h4>
+                            <div class="grid grid-cols-1 md:grid-cols-3 gap-4 mb-4">
+                                <div>
+                                    <label class="block text-gray-700 mb-2">College</label>
+                                    <select id="collegeForSubject" class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-indigo-500">
+                                        <option value="">Select college</option>
+                                    </select>
+                                </div>
+                                <div>
+                                    <label class="block text-gray-700 mb-2">Course</label>
+                                    <select id="courseForSubject" class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-indigo-500" disabled>
+                                        <option value="">Select course</option>
+                                    </select>
+                                </div>
+                                <div>
+                                    <label class="block text-gray-700 mb-2">Subject Name</label>
+                                    <input type="text" id="newSubjectName" placeholder="Subject Name" class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-indigo-500">
+                                </div>
+                            </div>
+                            <button id="addSubjectBtn" class="px-4 py-2 bg-indigo-600 text-white rounded-lg hover:bg-indigo-700">Add Subject</button>
+                        </div>
+                        
+                        <div class="overflow-x-auto">
+                            <table class="min-w-full divide-y divide-gray-200">
+                                <thead class="bg-gray-50">
+                                    <tr>
+                                        <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Subject Name</th>
+                                        <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">College</th>
+                                        <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Course</th>
+                                        <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Actions</th>
+                                    </tr>
+                                </thead>
+                                <tbody id="subjectsTable" class="bg-white divide-y divide-gray-200">
+                                    <!-- Subjects will be added here -->
+                                </tbody>
+                            </table>
+                        </div>
+                    </div>
+                </div>
+                
+                <!-- Upload Papers Tab -->
+                <div id="uploadTab" class="tab-content">
+                    <div class="bg-white rounded-xl shadow-md p-6">
+                        <h3 class="text-lg font-medium text-gray-700 mb-4">Upload New Exam Paper</h3>
+                        
+                        <div class="grid grid-cols-1 md:grid-cols-2 gap-6 mb-6">
+                            <div>
+                                <label class="block text-gray-700 mb-2">Paper Title</label>
+                                <input type="text" id="paperTitle" class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-indigo-500" placeholder="Enter paper title">
+                            </div>
+                            <div>
+                                <label class="block text-gray-700 mb-2">College</label>
+                                <select id="uploadCollege" class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-indigo-500">
+                                    <option value="">Select college</option>
+                                </select>
+                            </div>
+                            <div>
+                                <label class="block text-gray-700 mb-2">Course</label>
+                                <select id="uploadCourse" class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-indigo-500" disabled>
+                                    <option value="">Select course</option>
+                                </select>
+                            </div>
+                            <div>
+                                <label class="block text-gray-700 mb-2">Subject</label>
+                                <select id="uploadSubject" class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-indigo-500" disabled>
+                                    <option value="">Select subject</option>
+                                </select>
+                            </div>
+                            <div>
+                                <label class="block text-gray-700 mb-2">Year</label>
+                                <select id="uploadYear" class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-indigo-500">
+                                    <option value="">Select year</option>
+                                </select>
+                            </div>
+                            <div>
+                                <label class="block text-gray-700 mb-2">Semester</label>
+                                <select id="uploadSemester" class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-indigo-500">
+                                    <option value="">Select semester</option>
+                                    <option value="1">Semester 1</option>
+                                    <option value="2">Semester 2</option>
+                                    <option value="3">Semester 3</option>
+                                    <option value="4">Semester 4</option>
+                                </select>
+                            </div>
+                        </div>
+                        
+                        <div class="mb-6">
+                            <label class="block text-gray-700 mb-2">File Link</label>
+                            <div class="flex space-x-2">
+                                <input type="text" id="fileLink" class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-indigo-500" placeholder="Enter file link (must include dl.surf)">
+                                <button id="addFileBtn" class="px-4 py-2 bg-indigo-600 text-white rounded-lg hover:bg-indigo-700">Add File</button>
+                            </div>
+                        </div>
+                        
+                        <div class="bg-white rounded-lg shadow p-4 mb-6">
+                            <h4 class="text-md font-medium text-gray-700 mb-3">Preview</h4>
+                            <div id="filePreview" class="bg-gray-50 p-4 rounded border border-gray-200">
+                                <p class="text-gray-500 italic">No file added yet</p>
+                            </div>
+                        </div>
+                        
+                        <div class="flex justify-end">
+                            <button id="uploadPaperBtn" class="px-6 py-2 bg-indigo-600 text-white rounded-lg hover:bg-indigo-700 flex items-center">
+                                <i class="fas fa-upload mr-2"></i> Upload Paper
+                            </button>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </section>
+    </div>
+
+    <script>
+        // Data storage
+        const STORAGE_KEYS = {
+            ADMIN_STATE: 'exam_repo_admin_state'
+        };
+
+        // API URL - replace with your actual API URL
+        const API_URL = 'api.php';
+
+        // Initialize data variables
+        let colleges = [];
+        let courses = [];
+        let subjects = [];
+        let papers = [];
+
+        // Function to fetch data from API
+        async function fetchData(endpoint, params = {}) {
+            try {
+                // Build query string from params
+                const queryString = Object.keys(params)
+                    .map(key => `${encodeURIComponent(key)}=${encodeURIComponent(params[key])}`)
+                    .join('&');
+                
+                const url = `${API_URL}?action=${endpoint}${queryString ? '&' + queryString : ''}`;
+                const response = await fetch(url);
+                
+                if (!response.ok) {
+                    throw new Error(`API request failed with status ${response.status}`);
+                }
+                
+                const data = await response.json();
+                
+                if (data.status === 'error') {
+                    throw new Error(data.message);
+                }
+                
+                return data.data || [];
+            } catch (error) {
+                console.error(`Error fetching ${endpoint}:`, error);
+                showToast(`Failed to load ${endpoint}: ${error.message}`, 'error');
+                return [];
+            }
+        }
+
+        // Function to post data to API
+        async function postData(endpoint, data) {
+            try {
+                const url = `${API_URL}?action=${endpoint}`;
+                const response = await fetch(url, {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json'
+                    },
+                    body: JSON.stringify(data)
+                });
+                
+                if (!response.ok) {
+                    throw new Error(`API request failed with status ${response.status}`);
+                }
+                
+                const responseData = await response.json();
+                
+                if (responseData.status === 'error') {
+                    throw new Error(responseData.message);
+                }
+                
+                return responseData;
+            } catch (error) {
+                console.error(`Error posting to ${endpoint}:`, error);
+                showToast(`Failed to submit data: ${error.message}`, 'error');
+                throw error;
+            }
+        }
+
+        // Function to delete data via API
+        async function deleteData(endpoint, id) {
+            try {
+                const url = `${API_URL}?action=${endpoint}&id=${id}`;
+                const response = await fetch(url);
+                
+                if (!response.ok) {
+                    throw new Error(`API request failed with status ${response.status}`);
+                }
+                
+                const data = await response.json();
+                
+                if (data.status === 'error') {
+                    throw new Error(data.message);
+                }
+                
+                return data;
+            } catch (error) {
+                console.error(`Error deleting from ${endpoint}:`, error);
+                showToast(`Failed to delete: ${error.message}`, 'error');
+                throw error;
+            }
+        }
+
+        // Load initial data
+        async function loadInitialData() {
+            try {
+                // Show loading state
+                showToast('Loading data...', 'info');
+                
+                // Fetch all data in parallel
+                const [collegesData, coursesData, subjectsData, papersData] = await Promise.all([
+                    fetchData('get_colleges'),
+                    fetchData('get_courses'),
+                    fetchData('get_subjects'),
+                    fetchData('get_papers')
+                ]);
+                
+                colleges = collegesData;
+                courses = coursesData;
+                subjects = subjectsData;
+                papers = papersData;
+                
+                // Initialize the page after data is loaded
+                init();
+                showToast('Data loaded successfully!', 'success');
+            } catch (error) {
+                console.error('Error loading initial data:', error);
+                showToast('Failed to load data. Please refresh the page.', 'error');
+            }
+        }
+
+        // DOM elements
+        const adminToggleBtn = document.getElementById('adminToggleBtn');
+        const adminLoginModal = document.getElementById('adminLoginModal');
+        const cancelLoginBtn = document.getElementById('cancelLoginBtn');
+        const loginBtn = document.getElementById('loginBtn');
+        const adminPassword = document.getElementById('adminPassword');
+        const passwordError = document.getElementById('passwordError');
+        const adminPanel = document.getElementById('adminPanel');
+        const logoutBtn = document.getElementById('logoutBtn');
+        const collegeFilter = document.getElementById('collegeFilter');
+        const courseFilter = document.getElementById('courseFilter');
+        const yearFilter = document.getElementById('yearFilter');
+        const semesterFilter = document.getElementById('semesterFilter');
+        const subjectFilter = document.getElementById('subjectFilter');
+        const resetFiltersBtn = document.getElementById('resetFiltersBtn');
+        const searchBtn = document.getElementById('searchBtn');
+        const gridViewBtn = document.getElementById('gridViewBtn');
+        const listViewBtn = document.getElementById('listViewBtn');
+        const gridView = document.getElementById('gridView');
+        const listView = document.getElementById('listView');
+        const listViewContent = document.getElementById('listViewContent');
+        const noResults = document.getElementById('noResults');
+        const resetNoResultsBtn = document.getElementById('resetNoResultsBtn');
+        const adminTabs = document.querySelectorAll('.admin-tab');
+        const tabContents = document.querySelectorAll('.tab-content');
+        const totalPapers = document.getElementById('totalPapers');
+        const totalColleges = document.getElementById('totalColleges');
+        const recentUploads = document.getElementById('recentUploads');
+        const newCollegeName = document.getElementById('newCollegeName');
+        const addCollegeBtn = document.getElementById('addCollegeBtn');
+        const collegesTable = document.getElementById('collegesTable');
+        const collegeForCourse = document.getElementById('collegeForCourse');
+        const newCourseName = document.getElementById('newCourseName');
+        const addCourseBtn = document.getElementById('addCourseBtn');
+        const coursesTable = document.getElementById('coursesTable');
+        const collegeForSubject = document.getElementById('collegeForSubject');
+        const courseForSubject = document.getElementById('courseForSubject');
+        const newSubjectName = document.getElementById('newSubjectName');
+        const addSubjectBtn = document.getElementById('addSubjectBtn');
+        const subjectsTable = document.getElementById('subjectsTable');
+        const paperTitle = document.getElementById('paperTitle');
+        const uploadCollege = document.getElementById('uploadCollege');
+        const uploadCourse = document.getElementById('uploadCourse');
+        const uploadSubject = document.getElementById('uploadSubject');
+        const uploadYear = document.getElementById('uploadYear');
+        const uploadSemester = document.getElementById('uploadSemester');
+        const fileLink = document.getElementById('fileLink');
+        const addFileBtn = document.getElementById('addFileBtn');
+        const filePreview = document.getElementById('filePreview');
+        const uploadPaperBtn = document.getElementById('uploadPaperBtn');
+        const toast = document.getElementById('toast');
+
+        // Variables
+        let selectedFile = null;
+        let isAdminLoggedIn = localStorage.getItem(STORAGE_KEYS.ADMIN_STATE) === 'true' || false;
+
+        // Show toast notification with enhanced animations
+        function showToast(message, type = 'success') {
+            // Clear any existing toast timeout
+            if (window.toastTimeout) {
+                clearTimeout(window.toastTimeout);
+                clearTimeout(window.toastHideTimeout);
+                
+                // Reset toast to hidden state
+                toast.className = 'toast';
+                setTimeout(() => {
+                    showNewToast();
+                }, 300);
+            } else {
+                showNewToast();
+            }
+            
+            function showNewToast() {
+                let icon = '';
+                
+                // Set icon based on toast type
+                switch(type) {
+                    case 'success':
+                        icon = '<i class="fas fa-check-circle mr-2"></i>';
+                        break;
+                    case 'error':
+                        icon = '<i class="fas fa-exclamation-circle mr-2"></i>';
+                        break;
+                    case 'info':
+                        icon = '<i class="fas fa-info-circle mr-2"></i>';
+                        break;
+                    default:
+                        icon = '<i class="fas fa-bell mr-2"></i>';
+                }
+                
+                // Set toast content with icon
+                toast.innerHTML = `${icon} ${message}`;
+                toast.className = `toast show ${type}`;
+                
+                // Add progress bar for visual feedback
+                const progressBar = document.createElement('div');
+                progressBar.className = 'absolute bottom-0 left-0 h-1 bg-white bg-opacity-30';
+                progressBar.style.width = '100%';
+                progressBar.style.transition = 'width 3000ms linear';
+                toast.appendChild(progressBar);
+                
+                // Animate progress bar
+                setTimeout(() => {
+                    progressBar.style.width = '0%';
+                }, 50);
+                
+                // Auto-hide toast after delay
+                window.toastTimeout = setTimeout(() => {
+                    toast.className = 'toast';
+                    
+                    // Clear content after animation completes
+                    window.toastHideTimeout = setTimeout(() => {
+                        toast.innerHTML = '';
+                    }, 300);
+                }, 3000);
+            }
+        }
+
+        // Add file preview with animation
+        function addFile() {
+            const name = paperTitle.value.trim();
+            const link = fileLink.value.trim();
+            
+            if (!name || !link.includes('dl.surf')) {
+                showToast('Please enter a valid title and dl.surf file link.', 'error');
+                return;
+            }
+            
+            // Show loading state
+            addFileBtn.innerHTML = '<span class="loading-spinner mr-2"></span> Adding...';
+            addFileBtn.disabled = true;
+            
+            // Simulate processing for better UX
+            setTimeout(() => {
+                // Fade out existing preview if any
+                if (filePreview.innerHTML.trim() !== '') {
+                    filePreview.style.opacity = '0';
+                    filePreview.style.transform = 'translateY(10px)';
+                    
+                    setTimeout(() => {
+                        // Add new preview with animation
+                        filePreview.innerHTML = `
+                            <div class="bg-white shadow p-4 rounded-md border border-gray-200 file-preview-card">
+                                <div class="flex justify-between items-start">
+                                    <h3 class="text-lg font-bold text-gray-800">📄 ${name}</h3>
+                                    <span class="bg-green-100 text-green-800 text-xs font-medium px-2.5 py-0.5 rounded">Ready to upload</span>
+                                </div>
+                                <p class="text-gray-500 text-sm mt-2 mb-3">File link added successfully</p>
+                                <a href="${link}" target="_blank" class="text-blue-600 font-medium underline flex items-center">
+                                    <i class="fas fa-download mr-1"></i> Verify Download Link
+                                </a>
+                            </div>
+                        `;
+                        
+                        // Animate in
+                        filePreview.style.display = 'block';
+                        filePreview.style.opacity = '0';
+                        filePreview.style.transform = 'translateY(20px)';
+                        
+                        setTimeout(() => {
+                            filePreview.style.opacity = '1';
+                            filePreview.style.transform = 'translateY(0)';
+                            filePreview.style.transition = 'opacity 0.5s ease, transform 0.5s ease';
+                            
+                            // Reset button
+                            addFileBtn.innerHTML = '<i class="fas fa-plus mr-2"></i> Add File';
+                            addFileBtn.disabled = false;
+                            
+                            // Show success toast
+                            showToast('File added successfully!', 'success');
+                        }, 50);
+                    }, 300);
+                } else {
+                    // Add new preview with animation if no existing preview
+                    filePreview.innerHTML = `
+                        <div class="bg-white shadow p-4 rounded-md border border-gray-200 file-preview-card">
+                            <div class="flex justify-between items-start">
+                                <h3 class="text-lg font-bold text-gray-800">📄 ${name}</h3>
+                                <span class="bg-green-100 text-green-800 text-xs font-medium px-2.5 py-0.5 rounded">Ready to upload</span>
+                            </div>
+                            <p class="text-gray-500 text-sm mt-2 mb-3">File link added successfully</p>
+                            <a href="${link}" target="_blank" class="text-blue-600 font-medium underline flex items-center">
+                                <i class="fas fa-download mr-1"></i> Verify Download Link
+                            </a>
+                        </div>
+                    `;
+                    
+                    // Animate in
+                    filePreview.style.display = 'block';
+                    filePreview.style.opacity = '0';
+                    filePreview.style.transform = 'translateY(20px)';
+                    
+                    setTimeout(() => {
+                        filePreview.style.opacity = '1';
+                        filePreview.style.transform = 'translateY(0)';
+                        filePreview.style.transition = 'opacity 0.5s ease, transform 0.5s ease';
+                        
+                        // Reset button
+                        addFileBtn.innerHTML = '<i class="fas fa-plus mr-2"></i> Add File';
+                        addFileBtn.disabled = false;
+                        
+                        // Show success toast
+                        showToast('File added successfully!', 'success');
+                    }, 50);
+                }
+            }, 500);
+        }
+
+        // Initialize the page
+        function init() {
+            // Initialize filters
+            initFilters();
+            
+            // Initialize admin panel
+            initAdminPanel();
+            
+            // Initialize view
+            showGridView();
+            
+            // Load papers
+            loadPapers();
+            
+            // Update paper counts
+            updatePaperCounts();
+            
+            // Update recent uploads
+            updateRecentUploads();
+            
+            // Show admin panel if already logged in
+            if (isAdminLoggedIn) {
+                adminPanel.classList.remove('hidden');
+                adminToggleBtn.innerHTML = '<i class="fas fa-user-shield mr-2"></i> Admin Mode';
+            }
+            
+            // Add event listeners
+            addEventListeners();
+        }
+
+        // Initialize filters
+        function initFilters() {
+            // Clear existing options
+            collegeFilter.innerHTML = '<option value="">Select college</option>';
+            uploadCollege.innerHTML = '<option value="">Select college</option>';
+            collegeForCourse.innerHTML = '<option value="">Select college</option>';
+            collegeForSubject.innerHTML = '<option value="">Select college</option>';
+            
+            // Populate college filter
+            colleges.forEach(college => {
+                const option = document.createElement('option');
+                option.value = college.id;
+                option.textContent = college.name;
+                collegeFilter.appendChild(option);
+                
+                // Clone for upload section
+                const uploadOption = option.cloneNode(true);
+                uploadCollege.appendChild(uploadOption);
+                
+                // Clone for admin sections
+                collegeForCourse.appendChild(option.cloneNode(true));
+                collegeForSubject.appendChild(option.cloneNode(true));
+            });
+            
+            // Populate year filter
+            yearFilter.innerHTML = '<option value="">Select year</option>';
+            uploadYear.innerHTML = '<option value="">Select year</option>';
+            
+            const currentYear = new Date().getFullYear();
+            for (let year = currentYear; year >= currentYear - 10; year--) {
+                const option = document.createElement('option');
+                option.value = year;
+                option.textContent = year;
+                yearFilter.appendChild(option);
+                uploadYear.appendChild(option.cloneNode(true));
+            }
+        }
+
+        // Initialize admin panel with animations
+        function initAdminPanel() {
+            // Add loading state
+            totalColleges.innerHTML = '<span class="loading-spinner mr-2"></span>';
+            totalPapers.innerHTML = '<span class="loading-spinner mr-2"></span>';
+            recentUploads.innerHTML = '<tr><td colspan="4" class="px-6 py-4 text-center"><span class="loading-spinner mx-auto"></span></td></tr>';
+            
+            // Simulate loading for better UX
+            setTimeout(() => {
+                // Update counts with animation
+                totalColleges.textContent = '0';
+                totalPapers.textContent = '0';
+                
+                // Animate count up
+                animateCountUp(totalColleges, 0, colleges.length, 500);
+                animateCountUp(totalPapers, 0, papers.length, 500);
+                
+                // Populate recent uploads with fade-in animation
+                updateRecentUploads();
+                
+                // Update tables with staggered animations
+                setTimeout(() => updateCollegesTable(), 100);
+                setTimeout(() => updateCoursesTable(), 200);
+                setTimeout(() => updateSubjectsTable(), 300);
+            }, 300);
+        }
+        
+        // Animate count up effect
+        function animateCountUp(element, start, end, duration) {
+            let startTimestamp = null;
+            const step = (timestamp) => {
+                if (!startTimestamp) startTimestamp = timestamp;
+                const progress = Math.min((timestamp - startTimestamp) / duration, 1);
+                const value = Math.floor(progress * (end - start) + start);
+                element.textContent = value;
+                if (progress < 1) {
+                    window.requestAnimationFrame(step);
+                }
+            };
+            window.requestAnimationFrame(step);
+        }
+
+        // Update recent uploads with staggered animations
+        function updateRecentUploads() {
+            recentUploads.innerHTML = '';
+            const recent = papers.slice(0, 5);
+            
+            if (recent.length === 0) {
+                const emptyRow = document.createElement('tr');
+                emptyRow.innerHTML = `
+                    <td colspan="4" class="px-6 py-4 text-center text-gray-500">No papers uploaded yet</td>
+                `;
+                recentUploads.appendChild(emptyRow);
+                return;
+            }
+            
+            recent.forEach((paper, index) => {
+                const row = document.createElement('tr');
+                row.className = 'recent-upload-row';
+                row.style.opacity = '0';
+                row.style.transform = 'translateY(10px)';
+                row.style.transition = 'opacity 0.3s ease, transform 0.3s ease';
+                row.style.transitionDelay = `${index * 100}ms`;
+                
+                row.innerHTML = `
+                    <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-900">${paper.title}</td>
+                    <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-500">${paper.college}</td>
+                    <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-500">${paper.course}</td>
+                    <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-500">${paper.date || new Date().toLocaleDateString()}</td>
+                `;
+                recentUploads.appendChild(row);
+                
+                // Trigger animation after a small delay to ensure DOM update
+                setTimeout(() => {
+                    row.style.opacity = '1';
+                    row.style.transform = 'translateY(0)';
+                }, 50);
+            });
+        }
+
+        // Update colleges table with animations
+        function updateCollegesTable() {
+            // Add loading indicator
+            collegesTable.innerHTML = '<tr><td colspan="3" class="px-6 py-4 text-center"><span class="loading-spinner mx-auto"></span></td></tr>';
+            
+            // Short delay for better UX
+            setTimeout(() => {
+                collegesTable.innerHTML = '';
+                
+                if (colleges.length === 0) {
+                    const emptyRow = document.createElement('tr');
+                    emptyRow.innerHTML = `<td colspan="3" class="px-6 py-4 text-center text-gray-500">No colleges added yet</td>`;
+                    collegesTable.appendChild(emptyRow);
+                    return;
+                }
+                
+                colleges.forEach((college, index) => {
+                    const collegeCourses = courses.filter(course => course.collegeId === college.id);
+                    
+                    const row = document.createElement('tr');
+                    row.className = 'table-row-animate';
+                    row.style.opacity = '0';
+                    row.style.transform = 'translateY(10px)';
+                    row.style.transition = 'opacity 0.3s ease, transform 0.3s ease';
+                    row.style.transitionDelay = `${index * 50}ms`;
+                    
+                    row.innerHTML = `
+                        <td class="px-6 py-4 whitespace-nowrap text-sm font-medium text-gray-900">${college.name}</td>
+                        <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-500">${collegeCourses.length} courses</td>
+                        <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-500">
+                            <button class="text-red-600 hover:text-red-900 delete-college transition duration-300" data-id="${college.id}">
+                                <i class="fas fa-trash mr-1"></i> Delete
+                            </button>
+                        </td>
+                    `;
+                    collegesTable.appendChild(row);
+                    
+                    // Trigger animation after a small delay
+                    setTimeout(() => {
+                        row.style.opacity = '1';
+                        row.style.transform = 'translateY(0)';
+                    }, 50);
+                });
+                
+                // Add delete event listeners
+                document.querySelectorAll('.delete-college').forEach(button => {
+                    button.addEventListener('click', () => {
+                        const id = parseInt(button.getAttribute('data-id'));
+                        const row = button.closest('tr');
+                        
+                        // Animate row removal
+                        row.style.opacity = '0';
+                        row.style.transform = 'translateX(20px)';
+                        
+                        setTimeout(() => {
+                            deleteCollege(id);
+                        }, 300);
+                    });
+                });
+            }, 300);
+        }
+
+        // Update courses table with animations
+        function updateCoursesTable() {
+            // Add loading indicator
+            coursesTable.innerHTML = '<tr><td colspan="4" class="px-6 py-4 text-center"><span class="loading-spinner mx-auto"></span></td></tr>';
+            
+            // Short delay for better UX
+            setTimeout(() => {
+                coursesTable.innerHTML = '';
+                
+                if (courses.length === 0) {
+                    const emptyRow = document.createElement('tr');
+                    emptyRow.innerHTML = `<td colspan="4" class="px-6 py-4 text-center text-gray-500">No courses added yet</td>`;
+                    coursesTable.appendChild(emptyRow);
+                    return;
+                }
+                
+                courses.forEach((course, index) => {
+                    const college = colleges.find(c => c.id === course.collegeId);
+                    const courseSubjects = subjects.filter(subject => subject.courseId === course.id);
+                    
+                    const row = document.createElement('tr');
+                    row.className = 'table-row-animate';
+                    row.style.opacity = '0';
+                    row.style.transform = 'translateY(10px)';
+                    row.style.transition = 'opacity 0.3s ease, transform 0.3s ease';
+                    row.style.transitionDelay = `${index * 50}ms`;
+                    
+                    row.innerHTML = `
+                        <td class="px-6 py-4 whitespace-nowrap text-sm font-medium text-gray-900">${course.name}</td>
+                        <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-500">${college ? college.name : 'N/A'}</td>
+                        <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-500">${courseSubjects.length} subjects</td>
+                        <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-500">
+                            <button class="text-red-600 hover:text-red-900 delete-course transition duration-300" data-id="${course.id}">
+                                <i class="fas fa-trash mr-1"></i> Delete
+                            </button>
+                        </td>
+                    `;
+                    coursesTable.appendChild(row);
+                    
+                    // Trigger animation after a small delay
+                    setTimeout(() => {
+                        row.style.opacity = '1';
+                        row.style.transform = 'translateY(0)';
+                    }, 50);
+                });
+                
+                // Add delete event listeners
+                document.querySelectorAll('.delete-course').forEach(button => {
+                    button.addEventListener('click', () => {
+                        const id = parseInt(button.getAttribute('data-id'));
+                        const row = button.closest('tr');
+                        
+                        // Animate row removal
+                        row.style.opacity = '0';
+                        row.style.transform = 'translateX(20px)';
+                        
+                        setTimeout(() => {
+                            deleteCourse(id);
+                        }, 300);
+                    });
+                });
+            }, 300);
+        }
+
+        // Update subjects table with animations
+        function updateSubjectsTable() {
+            // Add loading indicator
+            subjectsTable.innerHTML = '<tr><td colspan="4" class="px-6 py-4 text-center"><span class="loading-spinner mx-auto"></span></td></tr>';
+            
+            // Short delay for better UX
+            setTimeout(() => {
+                subjectsTable.innerHTML = '';
+                
+                if (subjects.length === 0) {
+                    const emptyRow = document.createElement('tr');
+                    emptyRow.innerHTML = `<td colspan="4" class="px-6 py-4 text-center text-gray-500">No subjects added yet</td>`;
+                    subjectsTable.appendChild(emptyRow);
+                    return;
+                }
+                
+                subjects.forEach((subject, index) => {
+                    const college = colleges.find(c => c.id === subject.collegeId);
+                    const course = courses.find(c => c.id === subject.courseId);
+                    
+                    const row = document.createElement('tr');
+                    row.className = 'table-row-animate';
+                    row.style.opacity = '0';
+                    row.style.transform = 'translateY(10px)';
+                    row.style.transition = 'opacity 0.3s ease, transform 0.3s ease';
+                    row.style.transitionDelay = `${index * 50}ms`;
+                    
+                    row.innerHTML = `
+                        <td class="px-6 py-4 whitespace-nowrap text-sm font-medium text-gray-900">${subject.name}</td>
+                        <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-500">${college ? college.name : 'N/A'}</td>
+                        <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-500">${course ? course.name : 'N/A'}</td>
+                        <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-500">
+                            <button class="text-red-600 hover:text-red-900 delete-subject transition duration-300" data-id="${subject.id}">
+                                <i class="fas fa-trash mr-1"></i> Delete
+                            </button>
+                        </td>
+                    `;
+                    subjectsTable.appendChild(row);
+                    
+                    // Trigger animation after a small delay
+                    setTimeout(() => {
+                        row.style.opacity = '1';
+                        row.style.transform = 'translateY(0)';
+                    }, 50);
+                });
+                
+                // Add delete event listeners
+                document.querySelectorAll('.delete-subject').forEach(button => {
+                    button.addEventListener('click', () => {
+                        const id = parseInt(button.getAttribute('data-id'));
+                        const row = button.closest('tr');
+                        
+                        // Animate row removal
+                        row.style.opacity = '0';
+                        row.style.transform = 'translateX(20px)';
+                        
+                        setTimeout(() => {
+                            deleteSubject(id);
+                        }, 300);
+                    });
+                });
+            }, 300);
+        }
+
+        // Add event listeners
+        function addEventListeners() {
+            // Admin login
+            adminToggleBtn.addEventListener('click', () => {
+                adminLoginModal.classList.remove('hidden');
+            });
+            
+            cancelLoginBtn.addEventListener('click', () => {
+                adminLoginModal.classList.add('hidden');
+                passwordError.classList.add('hidden');
+            });
+            
+            loginBtn.addEventListener('click', () => {
+                if (adminPassword.value === 'pravat') {
+                    isAdminLoggedIn = true;
+                    adminPanel.classList.remove('hidden');
+                    adminLoginModal.classList.add('hidden');
+                    adminToggleBtn.innerHTML = '<i class="fas fa-user-shield mr-2"></i> Admin Mode';
+                    localStorage.setItem(STORAGE_KEYS.ADMIN_STATE, 'true');
+                    showToast('Admin login successful!', 'success');
+                } else {
+                    passwordError.classList.remove('hidden');
+                }
+            });
+            
+            logoutBtn.addEventListener('click', () => {
+                isAdminLoggedIn = false;
+                adminPanel.classList.add('hidden');
+                adminToggleBtn.innerHTML = '<i class="fas fa-lock mr-2"></i> Admin Login';
+                localStorage.setItem(STORAGE_KEYS.ADMIN_STATE, 'false');
+                showToast('Admin logout successful!', 'info');
+            });
+            
+            // College filter change
+            collegeFilter.addEventListener('change', async () => {
+                const collegeId = parseInt(collegeFilter.value);
+                await updateCourseFilter(collegeId);
+            });
+            
+            // Course filter change
+            courseFilter.addEventListener('change', async () => {
+                const courseId = parseInt(courseFilter.value);
+                await updateSubjectFilter(courseId);
+            });
+            
+            // College for course change (admin)
+            collegeForCourse.addEventListener('change', () => {
+                const collegeId = parseInt(collegeForCourse.value);
+                // Courses are already updated when college changes
+            });
+            
+            // College for subject change (admin)
+            collegeForSubject.addEventListener('change', async () => {
+                const collegeId = parseInt(collegeForSubject.value);
+                await updateSubjectCourseFilter(collegeId);
+            });
+            
+            // Upload college change
+            uploadCollege.addEventListener('change', async () => {
+                const collegeId = parseInt(uploadCollege.value);
+                await updateUploadCourseFilter(collegeId);
+            });
+            
+            // Upload course change
+            uploadCourse.addEventListener('change', async () => {
+                const courseId = parseInt(uploadCourse.value);
+                await updateUploadSubjectFilter(courseId);
+            });
+            
+            // Reset filters
+            resetFiltersBtn.addEventListener('click', resetFilters);
+            resetNoResultsBtn.addEventListener('click', resetFilters);
+            
+            // Search
+            searchBtn.addEventListener('click', loadPapers);
+            
+            // View toggle
+            gridViewBtn.addEventListener('click', showGridView);
+            listViewBtn.addEventListener('click', showListView);
+            
+            // Admin tabs with smooth animations
+            adminTabs.forEach(tab => {
+                tab.addEventListener('click', () => {
+                    // Get the currently active tab content
+                    const activeContent = document.querySelector('.tab-content.active');
+                    const tabId = tab.getAttribute('data-tab');
+                    const targetContent = document.getElementById(`${tabId}Tab`);
+                    
+                    // Don't do anything if clicking the already active tab
+                    if (activeContent === targetContent) return;
+                    
+                    // Remove active class from all tabs
+                    adminTabs.forEach(t => t.classList.remove('active', 'text-indigo-600', 'border-indigo-600'));
+                    
+                    // Add active class to clicked tab with transition
+                    tab.classList.add('active', 'text-indigo-600', 'border-indigo-600');
+                    
+                    // Animate out the current tab content
+                    if (activeContent) {
+                        activeContent.style.opacity = '0';
+                        activeContent.style.transform = 'translateX(-10px)';
+                        
+                        // After fade out animation completes
+                        setTimeout(() => {
+                            activeContent.classList.remove('active');
+                            
+                            // Prepare the new tab content for animation
+                            targetContent.style.opacity = '0';
+                            targetContent.style.transform = 'translateX(10px)';
+                            targetContent.classList.add('active');
+                            
+                            // Trigger animation for the new content (using setTimeout to ensure proper transition)
+                            setTimeout(() => {
+                                targetContent.style.opacity = '1';
+                                targetContent.style.transform = 'translateX(0)';
+                            }, 50);
+                        }, 200);
+                    } else {
+                        // If no active content (first load), just show the new one
+                        targetContent.classList.add('active');
+                        targetContent.style.opacity = '1';
+                        targetContent.style.transform = 'translateX(0)';
+                    }
+                });
+            });
+            
+            // Add college
+            addCollegeBtn.addEventListener('click', () => {
+                const name = newCollegeName.value.trim();
+                if (name) {
+                    addCollege(name);
+                    newCollegeName.value = '';
+                    showToast('College added successfully!', 'success');
+                } else {
+                    showToast('Please enter a college name', 'error');
+                }
+            });
+            
+            // Add course
+            addCourseBtn.addEventListener('click', () => {
+                const collegeId = parseInt(collegeForCourse.value);
+                const name = newCourseName.value.trim();
+                
+                if (collegeId && name) {
+                    addCourse(collegeId, name);
+                    newCourseName.value = '';
+                    showToast('Course added successfully!', 'success');
+                } else {
+                    showToast('Please select a college and enter a course name', 'error');
+                }
+            });
+            
+            // Add subject
+            addSubjectBtn.addEventListener('click', () => {
+                const collegeId = parseInt(collegeForSubject.value);
+                const courseId = parseInt(courseForSubject.value);
+                const name = newSubjectName.value.trim();
+                
+                if (collegeId && courseId && name) {
+                    addSubject(collegeId, courseId, name);
+                    newSubjectName.value = '';
+                    showToast('Subject added successfully!', 'success');
+                } else {
+                    showToast('Please select a college, course, and enter a subject name', 'error');
+                }
+            });
+            
+            // Add file
+            addFileBtn.addEventListener('click', addFile);
+            
+            // Upload paper
+            uploadPaperBtn.addEventListener('click', () => {
+                const title = paperTitle.value.trim();
+                const collegeId = parseInt(uploadCollege.value);
+                const courseId = parseInt(uploadCourse.value);
+                const subjectId = parseInt(uploadSubject.value);
+                const year = parseInt(uploadYear.value);
+                const semester = parseInt(uploadSemester.value);
+                const link = fileLink.value.trim();
+                
+                if (!title) {
+                    showToast('Please enter a paper title', 'error');
+                    return;
+                }
+                
+                if (!collegeId) {
+                    showToast('Please select a college', 'error');
+                    return;
+                }
+                
+                if (!courseId) {
+                    showToast('Please select a course', 'error');
+                    return;
+                }
+                
+                if (!subjectId) {
+                    showToast('Please select a subject', 'error');
+                    return;
+                }
+                
+                if (!year) {
+                    showToast('Please select a year', 'error');
+                    return;
+                }
+                
+                if (!semester) {
+                    showToast('Please select a semester', 'error');
+                    return;
+                }
+                
+                if (!link || !link.includes('dl.surf')) {
+                    showToast('Please enter a valid dl.surf file link', 'error');
+                    return;
+                }
+                
+                // Get college, course, subject names
+                const college = colleges.find(c => c.id === collegeId);
+                const course = courses.find(c => c.id === courseId);
+                const subject = subjects.find(s => s.id === subjectId);
+                
+                if (!college || !course || !subject) {
+                    showToast('Invalid college, course, or subject selection', 'error');
+                    return;
+                }
+                
+                // Create new paper data for API
+                const paperData = {
+                    title: title,
+                    college_id: collegeId,
+                    course_id: courseId,
+                    subject_id: subjectId,
+                    year: year,
+                    semester: semester,
+                    file_link: link,
+                };
+                
+                // Send to API
+                postData('upload_paper', paperData)
+                    .then(response => {
+                        // Create new paper object with server-assigned ID
+                        const newPaper = {
+                            id: parseInt(response.id),
+                            title: title,
+                            college: college.name,
+                            course: course.name,
+                            subject: subject.name,
+                            year: year,
+                            semester: semester,
+                            file: link,
+                            date: new Date().toISOString().split('T')[0]
+                        };
+                        
+                        // Add to local array
+                        papers.push(newPaper);
+                        
+                        // Reset form
+                        paperTitle.value = '';
+                        uploadCollege.value = '';
+                        uploadCourse.innerHTML = '<option value="">Select course</option>';
+                        uploadCourse.disabled = true;
+                        uploadSubject.innerHTML = '<option value="">Select subject</option>';
+                        uploadSubject.disabled = true;
+                        uploadYear.value = '';
+                        uploadSemester.value = '';
+                        fileLink.value = '';
+                        filePreview.innerHTML = '<p class="text-gray-500 italic">No file added yet</p>';
+                        
+                        // Show success message
+                        showToast('Paper uploaded successfully!', 'success');
+                        
+                        // Reload papers
+                        loadPapers();
+                        updateRecentUploads();
+                    })
+                    .catch(error => {
+                        console.error('Error uploading paper:', error);
+                        showToast('Failed to upload paper: ' + error.message, 'error');
+                    });
+            });
+        }
+
+        // Update course filter based on selected college
+        async function updateCourseFilter(collegeId) {
+            courseFilter.innerHTML = '<option value="">Select course</option>';
+            subjectFilter.innerHTML = '<option value="">Select subject</option>';
+            subjectFilter.disabled = true;
+            
+            if (collegeId) {
+                try {
+                    // Show loading state
+                    showToast('Loading courses...', 'info');
+                    
+                    // Fetch courses for this college from API
+                    const collegeCourses = await fetchData('get_courses', { college_id: collegeId });
+                    
+                    // Populate course dropdown
+                    collegeCourses.forEach(course => {
+                        const option = document.createElement('option');
+                        option.value = course.id;
+                        option.textContent = course.name;
+                        courseFilter.appendChild(option);
+                    });
+                    
+                    courseFilter.disabled = false;
+                    showToast('Courses loaded successfully!', 'success');
+                } catch (error) {
+                    console.error('Error loading courses:', error);
+                    showToast('Failed to load courses: ' + error.message, 'error');
+                    courseFilter.disabled = true;
+                }
+            } else {
+                courseFilter.disabled = true;
+            }
+        }
+
+        // Update subject filter based on selected course
+        async function updateSubjectFilter(courseId) {
+            subjectFilter.innerHTML = '<option value="">Select subject</option>';
+                    if (courseId) {
+                try {
+                    // Show loading state
+                    showToast('Loading subjects...', 'info');
+                    
+                    // Fetch subjects for this course from API
+                    const courseSubjects = await fetchData('get_subjects', { course_id: courseId });
+                    
+                    // Populate subject dropdown
+                    courseSubjects.forEach(subject => {
+                        const option = document.createElement('option');
+                        option.value = subject.id;
+                        option.textContent = subject.name;
+                        subjectFilter.appendChild(option);
+                    });
+                    
+                    subjectFilter.disabled = false;
+                    showToast('Subjects loaded successfully!', 'success');
+                } catch (error) {
+                    console.error('Error loading subjects:', error);
+                    showToast('Failed to load subjects: ' + error.message, 'error');
+                    subjectFilter.disabled = true;
+                }
+            } else {
+                subjectFilter.disabled = true;
+            }
+        }
+
+        // Update subject course filter (admin)
+        async function updateSubjectCourseFilter(collegeId) {
+            courseForSubject.innerHTML = '<option value="">Select course</option>';
+            courseForSubject.disabled = !collegeId;
+            
+            if (collegeId) {
+                try {
+                    // Show loading state
+                    showToast('Loading courses...', 'info');
+                    
+                    // Fetch courses for this college from API
+                    const collegeCourses = await fetchData('get_courses', { college_id: collegeId });
+                    
+                    // Populate course dropdown
+                    collegeCourses.forEach(course => {
+                        const option = document.createElement('option');
+                        option.value = course.id;
+                        option.textContent = course.name;
+                        courseForSubject.appendChild(option);
+                    });
+                    
+                    showToast('Courses loaded successfully!', 'success');
+                } catch (error) {
+                    console.error('Error loading courses:', error);
+                    showToast('Failed to load courses: ' + error.message, 'error');
+                    courseForSubject.disabled = true;
+                }
+            }
+        }
+
+        // Update upload course filter based on selected college
+        async function updateUploadCourseFilter(collegeId) {
+            uploadCourse.innerHTML = '<option value="">Select course</option>';
+            uploadSubject.innerHTML = '<option value="">Select subject</option>';
+            uploadSubject.disabled = true;
+            
+            if (collegeId) {
+                try {
+                    // Show loading state
+                    showToast('Loading courses...', 'info');
+                    
+                    // Fetch courses for this college from API
+                    const collegeCourses = await fetchData('get_courses', { college_id: collegeId });
+                    
+                    // Populate course dropdown
+                    collegeCourses.forEach(course => {
+                        const option = document.createElement('option');
+                        option.value = course.id;
+                        option.textContent = course.name;
+                        uploadCourse.appendChild(option);
+                    });
+                    
+                    uploadCourse.disabled = false;
+                    showToast('Courses loaded successfully!', 'success');
+                } catch (error) {
+                    console.error('Error loading courses:', error);
+                    showToast('Failed to load courses: ' + error.message, 'error');
+                    uploadCourse.disabled = true;
+                }
+            } else {
+                uploadCourse.disabled = true;
+            }
+        }
+
+        // Update upload subject filter based on selected course
+        async function updateUploadSubjectFilter(courseId) {
+            uploadSubject.innerHTML = '<option value="">Select subject</option>';
+            
+            if (courseId) {
+                try {
+                    // Show loading state
+                    showToast('Loading subjects...', 'info');
+                    
+                    // Fetch subjects for this course from API
+                    const courseSubjects = await fetchData('get_subjects', { course_id: courseId });
+                    
+                    // Populate subject dropdown
+                    courseSubjects.forEach(subject => {
+                        const option = document.createElement('option');
+                        option.value = subject.id;
+                        option.textContent = subject.name;
+                        uploadSubject.appendChild(option);
+                    });
+                    
+                    uploadSubject.disabled = false;
+                    showToast('Subjects loaded successfully!', 'success');
+                } catch (error) {
+                    console.error('Error loading subjects:', error);
+                    showToast('Failed to load subjects: ' + error.message, 'error');
+                    uploadSubject.disabled = true;
+                }
+            } else {
+                uploadSubject.disabled = true;
+            }
+        }
+
+        // Reset all filters
+        function resetFilters() {
+            collegeFilter.value = '';
+            courseFilter.innerHTML = '<option value="">Select course</option>';
+            courseFilter.disabled = true;
+            yearFilter.value = '';
+            semesterFilter.value = '';
+            subjectFilter.innerHTML = '<option value="">Select subject</option>';
+            subjectFilter.disabled = true;
+            loadPapers();
+            showToast('Filters reset successfully', 'info');
+        }
+
+        // Show grid view
+        function showGridView() {
+            gridView.classList.remove('hidden');
+            listView.classList.add('hidden');
+            gridViewBtn.classList.add('bg-indigo-600', 'text-white');
+            gridViewBtn.classList.remove('text-gray-900', 'bg-white');
+            listViewBtn.classList.remove('bg-indigo-600', 'text-white');
+            listViewBtn.classList.add('text-gray-900', 'bg-white');
+        }
+
+        // Show list view
+        function showListView() {
+            gridView.classList.add('hidden');
+            listView.classList.remove('hidden');
+            gridViewBtn.classList.remove('bg-indigo-600', 'text-white');
+            gridViewBtn.classList.add('text-gray-900', 'bg-white');
+            listViewBtn.classList.add('bg-indigo-600', 'text-white');
+            listViewBtn.classList.remove('text-gray-900', 'bg-white');
+        }
+
+        // Load papers with loading animation
+async function loadPapers() {
+    try {
+        // Show loading state
+        showToast('Loading papers...', 'info');
+        
+        // Show loading spinner on search button
+        const searchBtnOriginalContent = searchBtn.innerHTML;
+        searchBtn.innerHTML = '<span class="loading-spinner mr-2"></span> Loading...';
+        searchBtn.disabled = true;
+        
+        // Apply filters
+        const collegeId = parseInt(collegeFilter.value) || null;
+        const courseId = parseInt(courseFilter.value) || null;
+        const year = parseInt(yearFilter.value) || null;
+        const semester = parseInt(semesterFilter.value) || null;
+        const subjectId = parseInt(subjectFilter.value) || null;
+        
+        // Build filter parameters
+        const params = {};
+        if (collegeId) params.college_id = collegeId;
+        if (courseId) params.course_id = courseId;
+        if (year) params.year = year;
+        if (semester) params.semester = semester;
+        if (subjectId) params.subject_id = subjectId;
+        
+        // Add a small delay for better UX
+        await new Promise(resolve => setTimeout(resolve, 300));
+        
+        // Fetch filtered papers from API
+        const filteredPapers = await fetchData('get_papers', params);
+        
+        // Display results with animation
+        if (filteredPapers.length === 0) {
+            // Fade out current views
+            if (!gridView.classList.contains('hidden')) {
+                gridView.style.opacity = '0';
+                await new Promise(resolve => setTimeout(resolve, 300));
+            }
+            if (!listView.classList.contains('hidden')) {
+                listView.style.opacity = '0';
+                await new Promise(resolve => setTimeout(resolve, 300));
+            }
+            
+            // Show no results
+            gridView.classList.add('hidden');
+            listView.classList.add('hidden');
+            noResults.classList.remove('hidden');
+            noResults.style.opacity = '0';
+            setTimeout(() => {
+                noResults.style.opacity = '1';
+                noResults.style.transition = 'opacity 0.5s ease';
+            }, 10);
+        } else {
+            // Hide no results if visible
+            if (!noResults.classList.contains('hidden')) {
+                noResults.style.opacity = '0';
+                await new Promise(resolve => setTimeout(resolve, 300));
+                noResults.classList.add('hidden');
+            }
+            
+            // Render papers with animation
+            renderPapers(filteredPapers);
+        }
+        
+        updatePaperCounts();
+        showToast('Papers loaded successfully!', 'success');
+    } catch (error) {
+        console.error('Error loading papers:', error);
+        showToast('Failed to load papers: ' + error.message, 'error');
+    }
+}
+
+        // Update paper counts
+        function updatePaperCounts() {
+            totalPapers.textContent = papers.length;
+        }
+
+        // Render papers in grid and list views with staggered animations
+        function renderPapers(papersToRender) {
+            // Clear existing papers
+            gridView.innerHTML = '';
+            listViewContent.innerHTML = '';
+            
+            // Reset search button state
+            if (searchBtn.disabled) {
+                searchBtn.innerHTML = '<i class="fas fa-search mr-2"></i> Search';
+                searchBtn.disabled = false;
+            }
+            
+            // Make sure the view is visible
+            if (gridView.classList.contains('active-view')) {
+                gridView.style.opacity = '1';
+                gridView.style.transition = 'opacity 0.5s ease';
+            }
+            if (listView.classList.contains('active-view')) {
+                listView.style.opacity = '1';
+                listView.style.transition = 'opacity 0.5s ease';
+            }
+            
+            // Staggered animation delay
+            const staggerDelay = 50; // milliseconds between each card animation
+            
+            papersToRender.forEach((paper, index) => {
+                // Grid view card with animation
+                const gridCard = document.createElement('div');
+                gridCard.className = 'bg-white rounded-xl shadow-md overflow-hidden card-hover paper-card';
+                gridCard.style.opacity = '0';
+                gridCard.style.transform = 'translateY(20px)';
+                gridCard.style.transition = 'opacity 0.5s ease, transform 0.5s ease';
+                
+                gridCard.innerHTML = `
+                    <div class="p-6">
+                        <div class="flex justify-between items-start">
+                            <div>
+                                <h3 class="text-lg font-semibold text-gray-800 mb-1">${paper.title}</h3>
+                                <p class="text-gray-600 text-sm mb-2">${paper.college}</p>
+                            </div>
+                            <span class="bg-indigo-100 text-indigo-800 text-xs font-medium px-2.5 py-0.5 rounded">${paper.year}</span>
+                        </div>
+                        <div class="mt-4 mb-6">
+                            <p class="text-gray-700 mb-1"><span class="font-medium">Course:</span> ${paper.course}</p>
+                            <p class="text-gray-700"><span class="font-medium">Subject:</span> ${paper.subject}</p>
+                        </div>
+                        <div class="flex justify-between items-center">
+                            <button class="download-btn px-4 py-2 bg-indigo-600 text-white rounded-lg hover:bg-indigo-700 flex items-center" data-id="${paper.id}">
+                                <i class="fas fa-download mr-2"></i> Download
+                            </button>
+                            ${isAdminLoggedIn ? `
+                            <button class="delete-btn px-4 py-2 bg-red-600 text-white rounded-lg hover:bg-red-700 flex items-center" data-id="${paper.id}">
+                                <i class="fas fa-trash mr-2"></i>
+                            </button>
+                            ` : ''}
+                        </div>
+                    </div>
+                `;
+                gridView.appendChild(gridCard);
+                
+                // Animate grid card with delay
+                setTimeout(() => {
+                    gridCard.style.opacity = '1';
+                    gridCard.style.transform = 'translateY(0)';
+                }, staggerDelay * index);
+                
+                // List view row with animation
+                const listRow = document.createElement('tr');
+                listRow.className = 'paper-list-item';
+                listRow.style.opacity = '0';
+                listRow.style.transform = 'translateX(20px)';
+                listRow.style.transition = 'opacity 0.5s ease, transform 0.5s ease';
+                
+                listRow.innerHTML = `
+                    <td class="px-6 py-4 whitespace-nowrap">
+                        <div class="text-sm font-medium text-gray-900">${paper.title}</div>
+                    </td>
+                    <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-500">${paper.college}</td>
+                    <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-500">${paper.course}</td>
+                    <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-500">${paper.year}</td>
+                    <td class="px-6 py-4 whitespace-nowrap text-sm font-medium">
+                        <button class="download-btn px-3 py-1 bg-indigo-600 text-white rounded-md hover:bg-indigo-700 flex items-center" data-id="${paper.id}">
+                            <i class="fas fa-download mr-1"></i> Download
+                        </button>
+                        ${isAdminLoggedIn ? `
+                        <button class="delete-btn px-3 py-1 bg-red-600 text-white rounded-md hover:bg-red-700 ml-2" data-id="${paper.id}">
+                            <i class="fas fa-trash"></i>
+                        </button>
+                        ` : ''}
+                    </td>
+                `;
+                listViewContent.appendChild(listRow);
+                
+                // Animate list row with delay
+                setTimeout(() => {
+                    listRow.style.opacity = '1';
+                    listRow.style.transform = 'translateX(0)';
+                }, staggerDelay * index);
+            });
+            
+            // Add event listeners to download buttons
+            document.querySelectorAll('.download-btn').forEach(button => {
+                button.addEventListener('click', (e) => {
+                    e.preventDefault();
+                    const paperId = parseInt(button.getAttribute('data-id'));
+                    const paper = papers.find(p => p.id === paperId);
+                    if (paper) {
+                        // Show loading spinner on button
+                        const originalContent = button.innerHTML;
+                        button.innerHTML = '<span class="loading-spinner mr-2"></span> Downloading...';
+                        button.disabled = true;
+                        
+                        // Download with slight delay for better UX
+                        setTimeout(() => {
+                            downloadPaper(paper);
+                            // Restore button
+                            button.innerHTML = originalContent;
+                            button.disabled = false;
+                        }, 500);
+                    }
+                });
+            });
+            
+            // Add event listeners to delete buttons (admin only)
+            if (isAdminLoggedIn) {
+                document.querySelectorAll('.delete-btn').forEach(button => {
+                    button.addEventListener('click', (e) => {
+                        e.preventDefault();
+                        const paperId = parseInt(button.getAttribute('data-id'));
+                        if (confirm('Are you sure you want to delete this paper?')) {
+                            // Show loading spinner
+                            const originalContent = button.innerHTML;
+                            button.innerHTML = '<span class="loading-spinner mr-2"></span>';
+                            button.disabled = true;
+                            
+                            deletePaper(paperId);
+                        }
+                    });
+                });
+            }
+            
+            // Show success message
+            showToast(`Found ${papersToRender.length} papers matching your criteria`, 'success');
+        }
+
+        // Download paper
+function downloadPaper(paper) {
+    if (paper.file && (paper.file.startsWith("http") || paper.file.startsWith("https"))) {
+        window.open(paper.file, "_blank");
+        showToast('Opening download link...', 'info');
+    } else {
+        showToast("Invalid file link. Please contact administrator.", "error");
+        console.error("Invalid file link:", paper.file);
+    }
+}
+
+        // Add a new college
+        async function addCollege(name) {
+            try {
+                // Send data to API
+                const response = await postData('add_college', { name: name });
+                
+                // Get the new college with ID from server
+                const newCollege = {
+                    id: parseInt(response.id),
+                    name: name
+                };
+                
+                // Add to local array
+                colleges.push(newCollege);
+                
+                // Update UI
+                const option = document.createElement('option');
+                option.value = newCollege.id;
+                option.textContent = name;
+                collegeFilter.appendChild(option);
+                uploadCollege.appendChild(option.cloneNode(true));
+                collegeForCourse.appendChild(option.cloneNode(true));
+                collegeForSubject.appendChild(option.cloneNode(true));
+                
+                updateCollegesTable();
+                totalColleges.textContent = colleges.length;
+            } catch (error) {
+                console.error('Error adding college:', error);
+                showToast('Failed to add college: ' + error.message, 'error');
+            }
+        }
+
+        // Delete a college
+        async function deleteCollege(id) {
+            try {
+                // Send delete request to API
+                await deleteData('delete_college', { id: id });
+                
+                // Update local data
+                colleges = colleges.filter(college => college.id !== id);
+                
+                // Also delete related courses and subjects
+                courses = courses.filter(course => course.collegeId !== id);
+                subjects = subjects.filter(subject => subject.collegeId !== id);
+                
+                // Update UI
+                updateCollegesTable();
+                updateCoursesTable();
+                updateSubjectsTable();
+                initFilters();
+                loadPapers();
+                showToast('College deleted successfully!', 'success');
+            } catch (error) {
+                console.error('Error deleting college:', error);
+                showToast('Failed to delete college: ' + error.message, 'error');
+            }
+        }
+
+        // Add a new course
+        async function addCourse(collegeId, name) {
+            try {
+                // Send data to API
+                const response = await postData('add_course', { 
+                    college_id: parseInt(collegeId),
+                    name: name
+                });
+                
+                // Get the new course with ID from server
+                const newCourse = {
+                    id: parseInt(response.id),
+                    collegeId: parseInt(collegeId),
+                    name: name
+                };
+                
+                // Add to local array
+                courses.push(newCourse);
+                
+                // Update UI
+                updateCoursesTable();
+                
+                // Also update course filters
+                if (parseInt(collegeFilter.value) === parseInt(collegeId)) {
+                    const option = document.createElement('option');
+                    option.value = newCourse.id;
+                    option.textContent = name;
+                    courseFilter.appendChild(option);
+                }
+                
+                if (parseInt(uploadCollege.value) === parseInt(collegeId)) {
+                    const option = document.createElement('option');
+                    option.value = newCourse.id;
+                    option.textContent = name;
+                    uploadCourse.appendChild(option);
+                }
+            } catch (error) {
+                console.error('Error adding course:', error);
+                showToast('Failed to add course: ' + error.message, 'error');
+            }
+        }
+
+        // Delete a course
+        async function deleteCourse(id) {
+            try {
+                // Send delete request to API
+                await deleteData('delete_course', { id: id });
+                
+                // Update local data
+                courses = courses.filter(course => course.id !== id);
+                
+                // Also delete related subjects
+                subjects = subjects.filter(subject => subject.courseId !== id);
+                
+                // Update UI
+                updateCoursesTable();
+                updateSubjectsTable();
+                initFilters();
+                loadPapers();
+                showToast('Course deleted successfully!', 'success');
+            } catch (error) {
+                console.error('Error deleting course:', error);
+                showToast('Failed to delete course: ' + error.message, 'error');
+            }
+        }
+
+        // Add a new subject
+        async function addSubject(collegeId, courseId, name) {
+            try {
+                // Send data to API
+                const response = await postData('add_subject', { 
+                    college_id: parseInt(collegeId),
+                    course_id: parseInt(courseId),
+                    name: name
+                });
+                
+                // Get the new subject with ID from server
+                const newSubject = {
+                    id: parseInt(response.id),
+                    collegeId: parseInt(collegeId),
+                    courseId: parseInt(courseId),
+                    name: name
+                };
+                
+                // Add to local array
+                subjects.push(newSubject);
+                
+                // Update UI
+                updateSubjectsTable();
+                
+                // Also update subject filters
+                if (parseInt(collegeFilter.value) === parseInt(collegeId) && parseInt(courseFilter.value) === parseInt(courseId)) {
+                    const option = document.createElement('option');
+                    option.value = newSubject.id;
+                    option.textContent = name;
+                    subjectFilter.appendChild(option);
+                }
+            } catch (error) {
+                console.error('Error adding subject:', error);
+                showToast('Failed to add subject: ' + error.message, 'error');
+            }
+            
+            if (parseInt(uploadCollege.value) === parseInt(collegeId) && parseInt(uploadCourse.value) === parseInt(courseId)) {
+                const option = document.createElement('option');
+                option.value = newSubject.id;
+                option.textContent = name;
+                uploadSubject.appendChild(option);
+            }
+        }
+
+        // Delete a subject
+        async function deleteSubject(id) {
+            try {
+                // Send delete request to API
+                await deleteData('delete_subject', { id: id });
+                
+                // Update local data
+                subjects = subjects.filter(subject => subject.id !== id);
+                
+                // Update UI
+                updateSubjectsTable();
+                initFilters();
+                loadPapers();
+                showToast('Subject deleted successfully!', 'success');
+            } catch (error) {
+                console.error('Error deleting subject:', error);
+                showToast('Failed to delete subject: ' + error.message, 'error');
+            }
+        }
+
+        // Delete a paper
+        async function deletePaper(id) {
+            try {
+                // Send delete request to API
+                await deleteData('delete_paper', { id: id });
+                
+                // Update local data
+                papers = papers.filter(paper => paper.id !== id);
+                
+                // Update UI
+                updatePaperCounts();
+                loadPapers();
+                updateRecentUploads();
+                showToast('Paper deleted successfully!', 'success');
+            } catch (error) {
+                console.error('Error deleting paper:', error);
+                showToast('Failed to delete paper: ' + error.message, 'error');
+            }
+        }
+
+        // Initialize the app
+        document.addEventListener('DOMContentLoaded', loadInitialData);
+    </script>
+</body>
+</html>
